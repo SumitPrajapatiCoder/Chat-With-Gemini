@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gemini Chat</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #e0eafc, #cfdef3);
+            color: #222;
+            font-family: 'Segoe UI', sans-serif;
+            transition: 0.4s ease;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #f0f0f0;
+        }
+
+        .chat-box {
+            height: 65vh;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.75);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dark-mode .chat-box {
+            background: rgba(30, 30, 30, 0.8);
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 0.4s ease both;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .from-user {
+            background-color: #d0f0fd;
+            align-self: flex-end;
+            text-align: right;
+        }
+
+        .from-bot {
+            background-color: #ffffff;
+            align-self: flex-start;
+            text-align: left;
+        }
+
+        .dark-mode .from-user {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .dark-mode .from-bot {
+            background-color: #2e2e2e;
+            color: white;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .volume-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2rem;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .chat-box {
+                padding: 15px;
+                height: 60vh;
+            }
+
+            .chat-bubble {
+                max-width: 95%;
+                font-size: 15px;
+            }
+
+            .form-select,
+            .form-control,
+            .btn {
+                font-size: 14px;
+            }
+
+            form.d-flex {
+                flex-direction: column;
+            }
+
+            form.d-flex>* {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 22px;
+            }
+
+            .chat-box {
+                height: 55vh;
+            }
+
+            .chat-bubble {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body class="p-4">
+    <div class="container">
+        <h2 class="text-center mb-3">Chat With Gemini</h2>
+
+        <div class="text-center mb-3">
+            <a onclick="toggleDarkMode()" class="btn btn-outline-primary">
+                <i id="toggleIcon" class="fa-solid fa-toggle-off"></i>
+            </a>
+        </div>
+
+        <div class="chat-box mb-3">
+            {% for msg in history %}
+            <div class="chat-bubble from-user">
+                <strong>You</strong><br />{{ msg.prompt }}<br />
+                <small>{{ msg.timestamp|date:"h:i A" }}</small>
+            </div>
+            <div class="chat-bubble from-bot speakable" style="position: relative;">
+                <span class="volume-icon">
+                    <i class="fa-solid fa-volume-high"></i>
+                </span>
+                <strong>Gemini</strong><br />
+                <span class="gemini-response">{{ msg.response|safe }}</span><br />
+                <small>{{ msg.timestamp|date:"h:i A" }}</small>
+            </div>
+            {% endfor %}
+        </div>
+
+        <form method="post" class="d-flex w-100 mb-3">
+            {% csrf_token %}
+            <select name="model" class="form-select me-2" required>
+                {% for key, val in models.items %}
+                <option value="{{ key }}" {% if key == model_choice %}selected{% endif %}>{{ key }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" name="prompt" class="form-control me-2" id="promptInput"
+                placeholder="Type your message..." required />
+            <button type="submit" class="btn btn-outline-primary me-2"><i class="fa-solid fa-paper-plane"></i></button>
+            <button type="button" onclick="startListening()" class="btn btn-outline-primary"><i
+                    class="fa-solid fa-microphone"></i></button>
+        </form>
+
+        {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            <a href="{% url 'clear_chat' %}" class="btn btn-outline-primary"><i class="fa-solid fa-trash"></i> Clear
+                Chat</a>
+            <a href="{% url 'download_txt' %}" class="btn btn-outline-primary"><i class="fa-solid fa-download"></i>
+                Download .txt</a>
+        </div>
+    </div>
+
+    <script>
+        function toggleDarkMode() {
+            const isDark = document.body.classList.toggle("dark-mode");
+            const icon = document.getElementById("toggleIcon");
+            icon.classList.toggle("fa-toggle-on", isDark);
+            icon.classList.toggle("fa-toggle-off", !isDark);
+            localStorage.setItem("darkMode", isDark ? "on" : "off");
+        }
+
+        window.onload = function () {
+            const savedMode = localStorage.getItem("darkMode");
+            const icon = document.getElementById("toggleIcon");
+            const isDark = savedMode !== "off";
+            if (isDark) {
+                document.body.classList.add("dark-mode");
+                icon.classList.add("fa-toggle-on");
+                icon.classList.remove("fa-toggle-off");
+            } else {
+                document.body.classList.remove("dark-mode");
+                icon.classList.add("fa-toggle-off");
+                icon.classList.remove("fa-toggle-on");
+            }
+
+            const chatBox = document.querySelector(".chat-box");
+            if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+        };
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const chats = document.querySelectorAll(".speakable");
+            chats.forEach((chat) => {
+                let isSpeaking = false;
+                chat.addEventListener("click", () => {
+                    const response = chat.querySelector(".gemini-response")?.innerText || "";
+                    const icon = chat.querySelector(".volume-icon");
+                    if (!response.trim()) return;
+                    if (!isSpeaking) {
+                        speechSynthesis.cancel();
+                        const utterance = new SpeechSynthesisUtterance(response);
+                        speechSynthesis.speak(utterance);
+                        icon.style.display = "inline";
+                        isSpeaking = true;
+                        utterance.onend = () => {
+                            isSpeaking = false;
+                            icon.style.display = "none";
+                        };
+                    } else {
+                        speechSynthesis.cancel();
+                        isSpeaking = false;
+                        icon.style.display = "none";
+                    }
+                });
+            });
+        });
+
+        function startListening() {
+            const input = document.getElementById("promptInput");
+            if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
+                alert("Speech Recognition not supported in this browser.");
+                return;
+            }
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = "en-US";
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            recognition.start();
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                input.value = transcript;
+            };
+            recognition.onerror = (event) => {
+                alert("Error: " + event.error);
+            };
+        }
+    </script>
+</body>
+
+</html>
