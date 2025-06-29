@@ -23,9 +23,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-e%^55ooygr$+85s)6k@$sbzodm5l(*8qyuv1)2y_$_y-ccr4!$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -125,7 +122,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 TIME_ZONE = 'Asia/Kolkata'     
 USE_TZ = True 
 
-
+DEBUG = True  
+ALLOWED_HOSTS = ['.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://*.up.railway.app']
 
 from decouple import config
 GEMINI_API_TOKEN = config('Gemini_Key')
