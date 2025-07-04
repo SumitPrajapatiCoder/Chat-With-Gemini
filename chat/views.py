@@ -55,6 +55,7 @@ Question: {prompt}
                 raw_text = result['candidates'][0]['content']['parts'][0]['text']
                 response_text = markdown.markdown(raw_text)
                 response_time = localtime().strftime("%I:%M %p")
+
                 ChatMessage.objects.create(
                     prompt=prompt,
                     response=response_text,
@@ -88,7 +89,7 @@ Question: {prompt}
 def download_txt(request):
     messages = ChatMessage.objects.all().order_by('timestamp')
     content = "\n\n".join([
-        f"🕒 {localtime(msg.timestamp).strftime('%I:%M %p')}\nUser: {msg.prompt}\nGemini: {msg.response}"
+        f"{localtime(msg.timestamp).strftime('%I:%M %p')}\nUser: {msg.prompt}\nGemini: {msg.response}"
         for msg in messages
     ])
     return HttpResponse(
