@@ -1,0 +1,87 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django stuff:
+*.sqlite3
+db.sqlite3
+*.log
+
+# Environment variables
+.env
+*.env
+
+# Unit test / coverage reports
+.coverage
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Distribution / packaging
+*.egg-info/
+.eggs/
+*.egg
+dist/
+build/
+pip-wheel-metadata/
+
+# Installer logs
+pip-log.txt
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Node/npm
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Static & media
+staticfiles/
+media/
+static/
+media_root/
+static_root/
+
+# Docker
+Dockerfile~
+docker-compose.yml~
+.dockerignore
+
+# Git
+.git
+.gitignore
+
+# Compiled source
+*.o
+*.so
+*.out
+
+# Caches
+*.bak
+*.swp
+*.tmp
+*.cache
+*.pytest_cache/
+__pypackages__/
+
+# Defang / deployment temp
+defang_temp/

@@ -8,6 +8,12 @@ from django.shortcuts import redirect
 from .models import ChatMessage
 from django.conf import settings
 import markdown 
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+
 
 API_KEY=settings.GEMINI_API_TOKEN
 
@@ -16,6 +22,51 @@ MODEL_OPTIONS = {
 }
 
 
+def register_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if password != confirm_password:
+            messages.error(request, 'Passwords do not match')
+            return redirect('register')
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username already exists')
+            return redirect('register')
+
+        User.objects.create_user(username=username, password=password)
+        messages.success(request, 'Registration successful. Please log in.')
+        return redirect('login')  
+
+    return render(request, 'chat/register.html')
+
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(username=username, password=password)
+        if user:
+            login(request, user)
+            return redirect('chat')
+        else:
+            messages.error(request, 'Invalid username or password')
+            return redirect('login')
+
+    return render(request, 'chat/login.html')
+
+
+@login_required
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+
+
+@login_required
 def chat_view(request):
     error_message = ""
     prompt = ""
@@ -57,6 +108,7 @@ Question: {prompt}
                 response_time = localtime().strftime("%I:%M %p")
 
                 ChatMessage.objects.create(
+                    user=request.user, 
                     prompt=prompt,
                     response=response_text,
                     model_name=model_choice
@@ -71,7 +123,7 @@ Question: {prompt}
 
         return redirect('chat')
 
-    history = ChatMessage.objects.order_by('timestamp')
+    history = ChatMessage.objects.filter(user=request.user).order_by('timestamp')
     
     return render(request, "chat/chat.html", {
         "prompt": "",
@@ -85,9 +137,9 @@ Question: {prompt}
     })
 
 
-
+@login_required
 def download_txt(request):
-    messages = ChatMessage.objects.all().order_by('timestamp')
+    messages = ChatMessage.objects.filter(user=request.user).order_by('timestamp')
     content = "\n\n".join([
         f"{localtime(msg.timestamp).strftime('%I:%M %p')}\nUser: {msg.prompt}\nGemini: {msg.response}"
         for msg in messages
@@ -99,8 +151,12 @@ def download_txt(request):
     )
 
 
+@login_required
 def clear_chat(request):
-    ChatMessage.objects.all().delete()
+    ChatMessage.objects.filter(user=request.user).delete()
     return redirect('chat')
 
 
+
+def health_check(request):
+    return JsonResponse({"status": "ok"})

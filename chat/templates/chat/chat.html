@@ -88,6 +88,69 @@
             display: none;
         }
 
+        .navbar-custom {
+            background-color: #b2c8de;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        body.dark-mode .navbar-custom {
+            background-color: #3b3b5a;
+        }
+
+        .navbar-custom .user-info {
+            font-weight: 600;
+        }
+
+        .navbar-custom .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .model-row {
+            display: flex;
+            margin-bottom: 0.5rem;
+        }
+
+        .model-row select {
+            max-width: 200px;
+            width: 100%;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .input-row input.form-control {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .input-row button {
+            flex: 0 0 auto;
+            width: 42px;
+            height: 42px;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .input-row button i {
+            font-size: 1rem;
+        }
+
+
         @media (max-width: 768px) {
             .chat-box {
                 padding: 15px;
@@ -105,13 +168,41 @@
                 font-size: 14px;
             }
 
-            form.d-flex {
+            .model-row {
                 flex-direction: column;
             }
 
-            form.d-flex>* {
+            .model-row select {
                 width: 100%;
-                margin-bottom: 10px;
+            }
+
+            .input-row {
+                flex-direction: row;
+                width: 100%;
+            }
+
+            .input-row input.form-control {
+                flex: 1 1 auto;
+            }
+
+            .input-row button {
+                width: 40px;
+                height: 40px;
+                padding: 0;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .navbar-custom {
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+
+            .navbar-custom .nav-actions {
+                justify-content: center;
+                margin-top: 0.5rem;
+                flex-direction: row;
             }
         }
 
@@ -135,11 +226,18 @@
     <div class="container">
         <h2 class="text-center mb-3">Chat With Gemini</h2>
 
-        <div class="text-center mb-3">
-            <a onclick="toggleDarkMode()" class="btn btn-outline-primary">
-                <i id="toggleIcon" class="fa-solid fa-toggle-off"></i>
-            </a>
-        </div>
+        <nav class="navbar navbar-custom d-flex flex-column flex-sm-row justify-content-between align-items-center">
+            <span class="user-info">Hello, {{ request.user.username }}</span>
+            <div class="nav-actions">
+                <a onclick="toggleDarkMode()" class="btn btn-outline-primary">
+                    <i id="toggleIcon" class="fa-solid fa-toggle-off"></i>
+                </a>
+                <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </div>
+        </nav>
+
 
         <div class="chat-box mb-3">
             {% for msg in history %}
@@ -158,19 +256,29 @@
             {% endfor %}
         </div>
 
-        <form method="post" class="d-flex w-100 mb-3">
+        <form method="post" class="w-100 mb-3">
             {% csrf_token %}
-            <select name="model" class="form-select me-2" required>
-                {% for key, val in models.items %}
-                <option value="{{ key }}" {% if key == model_choice %}selected{% endif %}>{{ key }}</option>
-                {% endfor %}
-            </select>
-            <input type="text" name="prompt" class="form-control me-2" id="promptInput"
-                placeholder="Type your message..." required />
-            <button type="submit" class="btn btn-outline-primary me-2"><i class="fa-solid fa-paper-plane"></i></button>
-            <button type="button" onclick="startListening()" class="btn btn-outline-primary"><i
-                    class="fa-solid fa-microphone"></i></button>
+            <div class="d-flex mb-2 model-row">
+                <select name="model" class="form-select" required>
+                    {% for key, val in models.items %}
+                    <option value="{{ key }}" {% if key == model_choice %}selected{% endif %}>{{ key }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+
+            <div class="d-flex input-row">
+                <input type="text" name="prompt" class="form-control me-2" id="promptInput"
+                    placeholder="Type your message..." required />
+                <button type="submit" class="btn btn-outline-primary me-2">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+                <button type="button" onclick="startListening()" class="btn btn-outline-primary">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
+            </div>
         </form>
+
 
         {% if error %}
         <div class="alert alert-danger">{{ error }}</div>
