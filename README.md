@@ -1,73 +1,122 @@
-# Django
+# 💬 Gemini-Powered Chat Application 🤖
 
-[![1-click-deploy](https://raw.githubusercontent.com/DefangLabs/defang-assets/main/Logos/Buttons/SVG/deploy-with-defang.svg)](https://portal.defang.dev/redirect?url=https%3A%2F%2Fgithub.com%2Fnew%3Ftemplate_name%3Dsample-django-template%26template_owner%3DDefangSamples)
+This project is a Django-based chat application that leverages the power of the Gemini API to provide intelligent and engaging conversations. It allows users to register, log in, and interact with different Gemini models, storing chat history for future reference.
 
-This sample is a simple Django to-do app that uses SQLite as the database, which will be reset every time you deploy. **It is not production-ready**. For production use cases, you should check out the Django + Postgres sample.
+## 🚀 Key Features
 
-The app includes a management command which is run on startup to create a superuser with the username `admin` and password `admin`. This means you can login to the admin interface at `/admin/` and see the Django admin interface without any additional steps. The `example_app` is already registered and the `Todo` model is already set up to be managed in the admin interface.
+- **User Authentication:** Secure user registration, login, and logout functionality. 🔐
+- **Multiple Gemini Models:** Supports selection of different Gemini models for varied conversational experiences. 🧠
+- **Real-time Chat Interface:** A dynamic chat interface for seamless interaction. 🗣️
+- **Markdown Support:** Formats Gemini API responses using Markdown for enhanced readability. ✨
+- **Chat History:** Stores chat messages in a database, allowing users to review past conversations. 💾
+- **Download Chat History:** Users can download their chat history in text format. ⬇️
+- **Health Check Endpoint:** Provides a health check endpoint for monitoring application status. 🩺
 
-The Dockerfile and compose files are already set up for you and are ready to be deployed. Serving is done using [Gunicorn](https://gunicorn.org/) and uses [WhiteNoise](https://whitenoise.readthedocs.io/en/latest/) for static files. The `CSRF_TRUSTED_ORIGINS` setting is configured to allow the app to run on a `defang.dev` subdomain.
+## 🛠️ Tech Stack
 
-## Prerequisites
+- **Frontend:** HTML, CSS, JavaScript
+- **Backend:** Python, Django
+- **Database:** SQLite3 (default, configurable)
+- **AI Model:** Google Gemini API
+- **API Requests:** `requests` library
+- **Markdown Formatting:** `markdown` library
+- **Environment Management:** `os`
+- **Utilities:** `sys`, `pathlib`
 
-1. Download [Defang CLI](https://github.com/DefangLabs/defang)
-2. (Optional) If you are using [Defang BYOC](https://docs.defang.io/docs/concepts/defang-byoc) authenticate with your cloud provider account
-3. (Optional for local development) [Docker CLI](https://docs.docker.com/engine/install/)
+## 📦 Getting Started
 
-## Development
+### Prerequisites
 
-To run the application locally, you can use the following command:
+- Python 3.8+
+- Django 4.0+
+- A Google Gemini API key
 
-```bash
-docker compose up --build
-```
+### Installation
 
-## Configuration
+1.  **Clone the repository:**
 
-For this sample, you will not need to provide [configuration](https://docs.defang.io/docs/concepts/configuration). 
-
-If you wish to provide configuration, see below for an example of setting a configuration for a value named `API_KEY`.
-
-```bash
-defang config set API_KEY
-```
-
-## Deployment
-
-> [!NOTE]
-> Download [Defang CLI](https://github.com/DefangLabs/defang)
-
-### Defang Playground
-
-Deploy your application to the Defang Playground by opening up your terminal and typing:
-```bash
-defang compose up
-```
-
-### BYOC (AWS)
-
-If you want to deploy to your own cloud account, you can use Defang BYOC:
-
-1. [Authenticate your AWS account](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html), and check that you have properly set your environment variables like `AWS_PROFILE`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, and `AWS_SECRET_ACCESS_KEY`.
-2. Make sure to update the `CSRF_TRUSTED_ORIGINS` setting in the `settings.py` file to include an appropriate domain.
-3. Run in a terminal that has access to your AWS environment variables:
     ```bash
-    defang --provider=aws compose up
+    git clone <repository_url>
+    cd <repository_directory>
     ```
 
----
+2.  **Create a virtual environment:**
 
-Title: Django
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Linux/macOS
+    venv\Scripts\activate  # On Windows
+    ```
 
-Short Description: A simple Django app that uses SQLite as the database.
+3.  **Install dependencies:**
 
-Tags: Django, SQLite, Python
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-Languages: python
+4.  **Configure settings:**
 
+    - Set the `SECRET_KEY` in `gemini_project/settings.py`. **Do not use the example key in production!** Generate a strong, random key.
+    - Obtain a Gemini API key from Google AI Studio and set it as an environment variable or directly in `chat/views.py` (not recommended for production).
 
+5.  **Apply migrations:**
 
+    ```bash
+    python manage.py migrate
+    ```
 
+6.  **Create a superuser (optional):**
 
-For Deployment - 
-PS D:\Sumit\Python\Python Project\GeminiChat\gemini_project> defang compose up --build
+    ```bash
+    python manage.py createsuperuser
+    ```
+
+### Running Locally
+
+1.  **Start the development server:**
+
+    ```bash
+    python manage.py runserver
+    ```
+
+2.  **Access the application:**
+
+    Open your web browser and navigate to `http://localhost:8000/`.
+
+## 📂 Project Structure
+
+```
+gemini_project/
+├── chat/
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── urls.py
+│   ├── views.py
+│   └── templates/
+│       ├── chat/
+│       │   ├── chat.html
+│       │   ├── login.html
+│       │   └── register.html
+│   └── forms.py
+├── gemini_project/
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── manage.py
+├── db.sqlite3
+└── requirements.txt
+```
+
+## 📸 Screenshots
+
+(Add screenshots of the application here to showcase its UI and functionality)
+
+<img width="362" height="354" alt="image" src="https://github.com/user-attachments/assets/bd3e9ef1-9eee-4e21-b9dd-27c656e16ba3" />
+
+<img width="361" height="328" alt="image" src="https://github.com/user-attachments/assets/865cdab9-e2c9-4882-bc8f-fa54b2915902" />
+
+<img width="923" height="590" alt="image" src="https://github.com/user-attachments/assets/e6f51a3e-fd95-4694-8395-aaa1449620ab" />
