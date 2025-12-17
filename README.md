@@ -113,8 +113,6 @@ gemini_project/
 
 ## 📸 Screenshots
 
-(Add screenshots of the application here to showcase its UI and functionality)
-
 <img width="362" height="354" alt="image" src="https://github.com/user-attachments/assets/bd3e9ef1-9eee-4e21-b9dd-27c656e16ba3" />
 
 <img width="361" height="328" alt="image" src="https://github.com/user-attachments/assets/865cdab9-e2c9-4882-bc8f-fa54b2915902" />
